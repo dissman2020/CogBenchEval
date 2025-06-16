@@ -10,16 +10,16 @@
 #         """
 #         super().__init__(llm_info)
 #         model_path, device, tokenizer_path = llm_info
-        
+
 #         # 硬件自动检测
 #         self.device = device.lower()
 #         if self.device == "auto":
 #             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+
 #         # 模型配置（可在此处硬编码你的本地模型路径）
 #         self.model_path = model_path or "/data/kankan.lan/wx/model/base/Qwen2.5-1.5B-Instruct"  # 默认路径
 #         self.tokenizer_path = tokenizer_path or self.model_path
-        
+
 #         # 加载模型
 #         self._load_model()
 
