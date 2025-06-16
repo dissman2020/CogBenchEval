@@ -1067,3 +1067,17 @@ random,996,9.0,temporal discounting score,0.0,present bias,1.0,subaddictivity,1.
 random,997,10.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
 random,998,8.0,temporal discounting score,1.0,present bias,1.0,subaddictivity,0.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
 random,999,6.0,temporal discounting score,0.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+local,0,11.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+local_llama1B,0,10.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+ce,0,9.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
+cekl,0,13.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,1.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+sftklmeow,0,12.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+sftps3,0,11.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+sftps3meow,0,10.0,temporal discounting score,1.0,present bias,1.0,subaddictivity,0.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
+sftklps3,0,11.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
+sftklps3meowbeta1,0,14.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+sftklps3meowbeta-1,0,11.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+sftklps3meowbetagamma,0,10.0,temporal discounting score,1.0,present bias,1.0,subaddictivity,1.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
+local_llama8B,0,9.0,temporal discounting score,1.0,present bias,1.0,subaddictivity,0.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2
+local_R1llama8B,0,13.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,0.0,delay-speedup asymmetry-1,0.0,delay-length asymmetry-2
+centaur,0,6.0,temporal discounting score,1.0,present bias,0.0,subaddictivity,1.0,delay-speedup asymmetry-1,1.0,delay-length asymmetry-2

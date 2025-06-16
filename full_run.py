@@ -43,22 +43,23 @@ def run_benchmark(engine):
         # Get all the experiment folders
         experiment_folders = [f.path for f in os.scandir(experiments_dir) if f.is_dir()]
 
-        folder = './Experiments/TwoStepTask'
-        os.chdir(folder)
-        print(f'Running experiment {os.path.basename(folder)}')
-        subprocess.run(['python3', 'query.py', '--engines', engine])
-        print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
-        subprocess.run(['python3', 'store.py', '--engines', engine])
-        os.chdir('../..')  # Go back to the root directory
+        # folder = './Experiments/HorizonTask'
+        # os.chdir(folder)
+        # print('4424')
+        # print(f'Running experiment {os.path.basename(folder)}')
+        # subprocess.run(['python3', 'query.py', '--engines', engine])
+        # print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
+        # subprocess.run(['python3', 'store.py', '--engines', engine])
+        # os.chdir('../..')  # Go back to the root directory
 
-        # for folder in experiment_folders:
-        #     # Run query.py and store.py for each experiment
-        #     os.chdir(folder)
-        #     print(f'Running experiment {os.path.basename(folder)}')
-        #     subprocess.run(['python3', 'query.py', '--engines', engine])
-        #     print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
-        #     subprocess.run(['python3', 'store.py', '--engines', engine])
-        #     os.chdir('../..')  # Go back to the root directory
+        for folder in experiment_folders:
+            # Run query.py and store.py for each experiment
+            os.chdir(folder)
+            print(f'Running experiment {os.path.basename(folder)}')
+            subprocess.run(['python3', 'query.py', '--engines', engine])
+            print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
+            subprocess.run(['python3', 'store.py', '--engines', engine])
+            os.chdir('../..')  # Go back to the root directory
 
 
     # Run phenotype_comp.py in the Analysis folder

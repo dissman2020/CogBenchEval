@@ -156,6 +156,8 @@ class ExplorationExpForLLM(Experiment):
         Returns:
             text (str): text with only arms
         '''
+        if len(text) == 0:
+            return np.random.choice(arms)
         while text[-1] not in arms:
             if len(text) > 1:
                 text = text[:-1]
