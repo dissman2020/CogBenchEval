@@ -62,6 +62,7 @@ class TwoStepTaskExpForLLM(Experiment):
             start_text = "You will travel to foreign planets in search of treasures.\n" \
                          "When you visit a planet, you can choose an alien to trade with.\n" \
                          "The chance of getting treasures from these aliens changes over time.\n" \
+                         "You can only response one character for each question.\n" \
                          "Your goal is to maximize the number of received treasures.\n\n"
         elif self.parser.parse_args().version_number == '2':
             # Magic carpet
@@ -194,6 +195,7 @@ class TwoStepTaskExpForLLM(Experiment):
                 text = text[:-1]
             else:
                 # If text is empty, the LLM will choose randomly between the arms
+                print(f'-------------Random choice because: {text}  ------------------------')
                 return np.random.choice(arms)
         return text[-1]
 

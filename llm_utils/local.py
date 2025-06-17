@@ -1,57 +1,3 @@
-# from ..base_classes import LLM
-# import torch
-# from transformers import AutoTokenizer, AutoModelForCausalLM
-
-# class LocalLLM(LLM):
-#     def __init__(self, llm_info):
-#         """
-#         :param llm_info: 元组格式 (model_path, device, tokenizer_path)
-#                          示例: ("/path/to/model", "auto", None)
-#         """
-#         super().__init__(llm_info)
-#         model_path, device, tokenizer_path = llm_info
-
-#         # 硬件自动检测
-#         self.device = device.lower()
-#         if self.device == "auto":
-#             self.device = "cuda" if torch.cuda.is_available() else "cpu"
-
-#         # 模型配置（可在此处硬编码你的本地模型路径）
-#         self.model_path = model_path or "/data/kankan.lan/wx/model/base/Qwen2.5-1.5B-Instruct"  # 默认路径
-#         self.tokenizer_path = tokenizer_path or self.model_path
-
-#         # 加载模型
-#         self._load_model()
-
-#     def _load_model(self):
-#         """加载本地模型"""
-#         print(f"Loading local model from: {self.model_path}")
-#         try:
-#             self.tokenizer = AutoTokenizer.from_pretrained(
-#                 self.tokenizer_path,
-#                 trust_remote_code=True
-#             )
-#             self.model = AutoModelForCausalLM.from_pretrained(
-#                 self.model_path,
-#                 device_map="auto" if self.device == "cuda" else None,
-#                 torch_dtype=torch.float16 if "cuda" in self.device else torch.float32,
-#                 trust_remote_code=True
-#             )
-#         except Exception as e:
-#             raise RuntimeError(f"Failed to load local model: {str(e)}")
-
-#     def _generate(self, text, temp, max_tokens):
-#         """生成响应"""
-#         print(f"Generating......")
-#         inputs = self.tokenizer(text, return_tensors="pt").to(self.device)
-#         outputs = self.model.generate(
-#             **inputs,
-#             max_new_tokens=max_tokens,
-#             temperature=temp,
-#             do_sample=True if temp > 0 else False
-#         )
-#         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
 from ..base_classes import LLM
 import torch
 import sys
@@ -113,9 +59,9 @@ class LocalLLM(LLM):
                 trust_remote_code=True
             )
 
-            # 如果设备不是cuda（即单设备）且不是多GPU，则需要手动移动模型
-            if device_map is None or isinstance(device_map, str):
-                self.model.to(self.device)
+            # # 如果设备不是cuda（即单设备）且不是多GPU，则需要手动移动模型
+            # if device_map is None or isinstance(device_map, str):
+            #     self.model.to(self.device)
 
             # 设置为评估模式
             self.model.eval()
@@ -202,7 +148,7 @@ class LocalLLM(LLM):
                 # 生成
                 with torch.no_grad():
                     outputs = self.model.generate(**generate_kwargs)
-                generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=False)
+                generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
                 # 提取回复部分
                 result = self._extract_output(generated_text, original_text)

@@ -582,7 +582,6 @@ def merge_all_metrics_and_features(experiments, excluding_agents, llm_df):
 
     # Get a list of engines to include in the analysis
     including_agents = llm_df['Engine'].unique().tolist()
-    including_agents = ['gpt-4','claude-2','human','random','centaur']
     # Initialize a dictionary to store the metrics for each engine
     metrics = {engine:[] for engine in including_agents if engine not in excluding_agents}
     metrics_cis = {engine:[] for engine in including_agents if engine not in excluding_agents}
