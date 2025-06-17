@@ -1,11 +1,13 @@
-from ..base_classes import LLM
-import torch
-import sys
-import time
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import re
+import time
 
-class R1llama8BLLM(LLM):
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+from ..base_classes import LLM
+
+
+class LocalAdaMCA(LLM):
     def __init__(self, llm_info):
         super().__init__(llm_info)
         # 解析参数：model_path, device, tokenizer_path, model_name (用于识别格式)
