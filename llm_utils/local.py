@@ -118,6 +118,29 @@ class LocalLLM(LLM):
             else:
                 return generated_text[start_idx:end_idx].strip()
 
+    def _generate_and_extract(self, generate_kwargs):
+        """
+        重试直到从模型输出中提取到单个字母
+        参数:
+            model: 语言模型
+            tokenizer: 分词器
+            generate_kwargs: 生成参数
+        返回:
+            提取到的字母
+        """
+        max_retries = 5
+        retry_count = 0
+        while True:
+            with torch.no_grad():
+                outputs = self.model.generate(**generate_kwargs)
+            raw_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+            result = self.match_result_func(raw_text)
+            if result is not None or retry_count == max_retries:
+                # 如果匹配成功，直接返回
+                return result
+            else:
+                retry_count += 1
+
     def _generate(self, text, temp, max_tokens):
         """生成文本，带有重试机制"""
         original_text = text  # 保存原始输入，用于后续提取
@@ -139,19 +162,22 @@ class LocalLLM(LLM):
                     "attention_mask": inputs.attention_mask,
                     "max_new_tokens": max_tokens,
                     "pad_token_id": self.tokenizer.eos_token_id or self.tokenizer.pad_token_id,
-                    "temperature": temp if temp > 0 else None,
-                    "do_sample": True if temp > 0 else False
+                    # "temperature": temp if temp > 0 else None,
+                    # "do_sample": True if temp > 0 else False
                 }
                 # 移除None值
-                generate_kwargs = {k: v for k, v in generate_kwargs.items() if v is not None}
+                # generate_kwargs = {k: v for k, v in generate_kwargs.items() if v is not None}
 
                 # 生成
-                with torch.no_grad():
-                    outputs = self.model.generate(**generate_kwargs)
-                generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+                # with torch.no_grad():
+                #     outputs = self.model.generate(**generate_kwargs)
+                # generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+                # 使用retry机制确保生成符合预期格式
+                result = self._generate_and_extract(generate_kwargs)
 
                 # 提取回复部分
-                result = self._extract_output(generated_text, original_text)
+                # result = self._extract_output(generated_text, original_text)
                 return result
 
             except Exception as e:

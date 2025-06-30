@@ -13,6 +13,7 @@ sftklps3,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/repos/psy101/dat
 sftklps3meowbeta1,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/repos/psy101/data/Llama-3.2-1B-Adaptive-Weight
 sftklps3meowbeta-1,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/repos/psy101/data/Llama-3.2-1B-Adaptive-Weight-test
 sftklps3meowbetagamma,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/repos/psy101/data/Llama-3.2-1B-Adaptive-Weight-With-Gamma
+mixratio,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/repos/psy101/data/Llama-3.2-1B-SFT+KL+PS3+MEOW-final
 local_llama8B,1,No,No,Yes,2,4,No,No,No,No,No,No,/nas_data/kankan.lan/modelscope_models/LLM-Research/Meta-Llama-3.1-8B
 local_R1llama8B,1,No,No,Yes,2,4,No,No,No,No,No,No,/data/kankan.lan/modelscope_models/deepseek-ai/DeepSeek-R1-Distill-Llama-8B
 centaur,1,No,No,Yes,2,4,No,No,No,No,No,No,/data/kankan.lan/repos/Llama-3.1-Centaur-8B-adapter/Centaur-8B

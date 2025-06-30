@@ -1,12 +1,11 @@
-from torch.distributions import Binomial
+import os
+import re
+import sys
+
+import gymnasium as gym
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import gymnasium as gym
-import envs
-import sys, os
-import matplotlib.pyplot as plt
-import seaborn as sns
+from torch.distributions import Binomial
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
@@ -58,8 +57,10 @@ class TwoArmedBandit4Context_ExpForLLM(Experiment):
         llm.random_fct = self.random_fct
         llm.format_answer = "Machine "
         llm.default_query_specifications = '(Give the answer in the form \"Machine <your answer>.\")'
-        # Define a function that generates a choice from the LLM and keeps only the choices that are in self.arms        
-        llm_choice = lambda x: self.keep_arms(llm.generate(x))
+        # Define a function that generates a choice from the LLM and keeps only the choices that are in self.arms
+        llm_choice = lambda x: self.keep_arms(llm.generate(x, max_tokens=1))
+        llm.match_result_func = self.match_result
+
         data = []
         done = False
         env = gym.make('palminteri2017-v0')
@@ -69,6 +70,7 @@ class TwoArmedBandit4Context_ExpForLLM(Experiment):
         current_machine = env.contexts[0, 0]
         # Loop through each trial in the environment and generate a prompt for the LLM to act on. 
         for t in range(num_trials):
+            print(f'Running trial {t+1}/{num_trials}------------------------------------------')
             prompt = instructions + trials_left + "\n" + history + "\n"+ question
             # LLM acts
             self.arms = [i for i in env.arms[int(current_machine)-1].keys()]
@@ -115,6 +117,7 @@ class TwoArmedBandit4Context_ExpForLLM(Experiment):
                 text = text[:-1]
             else:
                 # If text is empty, the LLM will choose randomly between the arms (This happens very rarely but avoids problems)
+                print(f'-------------Random choice because: {text}  ------------------------')
                 return self.rdm_choice_agent()
         return text[-1]
     
@@ -176,7 +179,19 @@ class TwoArmedBandit4Context_ExpForLLM(Experiment):
         
         return history, trials_left, next_machine, question, done
 
+    def match_result(self, text):
+        pattern = r'(?<=A:\sMachine).*'
+        match = re.search(pattern, text)
 
+        if match:
+            result = match.group(0)
+            choices = re.findall(r'[A-Z]', result)
+            if len(set(choices)) == 1:
+                return choices[0]
+            else:
+                return None
+        else:
+            return None
         
 
 if __name__ == '__main__':

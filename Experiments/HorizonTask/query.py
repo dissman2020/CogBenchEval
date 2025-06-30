@@ -1,12 +1,12 @@
-import argparse
+# import envs.bandits
+import os
+import re
+import sys
+
+import gymnasium as gym
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import gymnasium as gym
-# import envs.bandits
-import statsmodels.api as sm
-import envs
-import sys, os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
 from CogBench.llm_utils.llms import get_llm
@@ -43,9 +43,10 @@ class ExplorationExpForLLM(Experiment):
         """
         self.Q_, self.A_ = llm.Q_A        
         llm.random_fct = self.random_fct
-        llm.default_query_specifications = "(Give your answe in the format 'Machine <your choice>')\n"
+        llm.default_query_specifications = "(Give your answer in the format 'Machine <your choice>')\n"
         llm.format_answer = "Machine "
-        llm_choice = lambda x: self.keep_arms(llm.generate(x))
+        llm_choice = lambda x: self.keep_arms(llm.generate(x,max_tokens=1))
+        llm.match_result_func = self.match_result
 
         actions = [None, None, None, None]
         env = gym.make('wilson2014horizon-v0')
@@ -157,15 +158,28 @@ class ExplorationExpForLLM(Experiment):
             text (str): text with only arms
         '''
         if len(text) == 0:
+            print(f'-------------Random choice because: {text}  ------------------------')
             return np.random.choice(arms)
         while text[-1] not in arms:
             if len(text) > 1:
                 text = text[:-1]
             else:
                 # If text is empty, the LLM will choose randomly between the arms
+                print(f'-------------Random choice because: {text}  ------------------------')
                 return np.random.choice(arms)
+        # Return the last character, which should be one of the arms
         return text[-1]
-            
+
+    def match_result(self, text):
+        pattern = r'\bA:\sMachine\s+[FJ]'
+        match = re.search(pattern, text)
+
+        if match:
+            result = match.group(0)
+            return result[-1]
+        else:
+            return None
+
 if __name__ == '__main__':
     experiment = ExplorationExpForLLM(get_llm)
     experiment.run()

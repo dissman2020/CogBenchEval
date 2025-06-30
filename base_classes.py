@@ -75,6 +75,7 @@ class LLM:
         self.Q_A = ('\n\nQ:', '\n\nA:')
         self.format_answer = "" #Default format of the answer is empty
         self.default_query_specifications = "" #Default query specifications is empty
+        self.match_result_func = None
 
     def generate(self, text, temp=None, max_tokens=None):
         """ Generate a response from the LLM. 'temp' and 'max_tokens' are made optional to be able to use the same function for all LLMs."""

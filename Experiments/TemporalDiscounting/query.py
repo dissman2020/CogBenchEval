@@ -1,9 +1,10 @@
-import argparse
+import os
+import re
+import sys
+
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import sys, os
-import statsmodels.api as sm
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
 from CogBench.llm_utils.llms import get_llm
@@ -46,6 +47,7 @@ class TemporalDiscuountingExpForLLM(Experiment):
         llm.random_fct = self.random_fct
         llm.format_answer = "I prefer option "
         llm_choice = lambda x: self.del_letters_at_end(llm.generate(x))
+        llm.match_result_func = self.match_result
         base_pay = self.parser.parse_args().base_pay
         anomalies = {'present bias':1, 'subaddictivity': 0, 'delay-speedup asymmetry-1':0, 'delay-length asymmetry-2':0}
 
@@ -184,8 +186,17 @@ class TemporalDiscuountingExpForLLM(Experiment):
                 print(f'{original_text} as option so storing rdm output')
                 return self.random_fct()
 
-
         return text
+
+    def match_result(self, text):
+        pattern = r'\bA:\sI\s+prefer\s+option\s+\d'
+        match = re.search(pattern, text)
+
+        if match:
+            result = match.group(0)
+            return result[-1]
+        else:
+            return None
 
 if __name__ == '__main__':
     TemporalDiscuountingExpForLLM(get_llm).run()

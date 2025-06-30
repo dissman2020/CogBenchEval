@@ -1,10 +1,12 @@
-import argparse
+import os
+import re
+import sys
+
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import gymnasium as gym
+
 import envs
-import sys, os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
 from CogBench.llm_utils.llms import get_llm
@@ -37,7 +39,7 @@ class LearningToInferExpForLLM(Experiment):
         self.parser.add_argument('--num_runs', type=int, default=200, help='Number of runs')
         self.parser.add_argument('--version_number', type=str, default='1', help='Version number of the experiment.')
 
-    
+
     def run_single_experiment(self, llm):
         """Runs an LLM on single experiment of the Theory of Learning to Infer task.
         Args:
@@ -45,9 +47,10 @@ class LearningToInferExpForLLM(Experiment):
         Returns:
             df (pd.DataFrame): Dataframe with the results of the experiment
         """
-        Q_, A_ = llm.Q_A        
+        Q_, A_ = llm.Q_A
         llm.random_fct = self.random_fct
         llm_choice = lambda x: self.del_letters_at_end(llm.generate(x))
+        llm.match_result_func = self.match_result
         data = []
 
         # Do one with informative likelihood and one with informative prior
@@ -59,18 +62,18 @@ class LearningToInferExpForLLM(Experiment):
             else:
                 left_urn = 'J'
                 right_urn = 'F'
-            
+
             if self.parser.parse_args().version_number == '1':
                 #Wheel of fortune and urn
                 instructions = f"You are participating in an experiment where you are provided with a wheel of fortune and two urns."\
                     f" The wheel of fortune contains 10 evenly sized sections labelled either {left_urn} or {right_urn}, corresponding to the urns {left_urn} and {right_urn}."\
                     " Another person will spin the wheel of fortune, select an urn based on the outcome of the spin, and then randomly pick a ball from the selected urn."\
-                    f" Your goal is to give your best estimate of the probability of the urn being {left_urn} after observing the ball drawn from the urn." 
+                    f" Your goal is to give your best estimate of the probability of the urn being {left_urn} after observing the ball drawn from the urn."
             elif self.parser.parse_args().version_number == '2':
                 instructions = f"You are participating in an experiment where you are provided with a wheel of fortuneand two ten-sided dice, {left_urn} and {right_urn}."\
                     f" The coin is a biased coin where heads corresponds to dice {left_urn} and tail to dice {right_urn}."\
                     " Another person will toss the coin, select one of the two dice based on the outcome of the toss, and then randomly throw the selected dice which has only red or blue faces."\
-                    f" Your goal is to give your best estimate of the probability of the dice being dice {left_urn} after observing the face of the dice thrown." 
+                    f" Your goal is to give your best estimate of the probability of the dice being dice {left_urn} after observing the face of the dice thrown."
             elif self.parser.parse_args().version_number == '3':
                 # Gem Mining Operation
                 instructions = f"You are participating in an experiment simulating a gem mining operation. There are two mines, mine {left_urn} and mine {right_urn},"\
@@ -100,7 +103,7 @@ class LearningToInferExpForLLM(Experiment):
                 llm.format_answer = f"I estimate the probability of the {gemobs} gem to be sorted from mine {left_urn} to be 0."
             #! Sometimes the following line is needed unhashed in this experiment because the LLM reformulates the question and therefore gives the answer in the format 0.XX whereas the code is made for an answer in the form XX only
             # llm.format_answer = llm.format_answer.replace(' 0.', '')
-            
+
             prompt = instructions + query # add history if not very first trial
             pred = llm_choice(prompt)
 
@@ -124,7 +127,7 @@ class LearningToInferExpForLLM(Experiment):
             return "0" + str(number)
         else:
             return str(number)
-        
+
     def del_letters_at_end(self, text):
         '''
         Args:
@@ -135,7 +138,7 @@ class LearningToInferExpForLLM(Experiment):
         original_text = text
         text = text.replace('0.','').replace(',', '').replace('.', '').replace(' ', '').replace('\'', '').replace(':"', '').replace('?', '').replace('*', '') #The 0. is because for gemini we have to remove the 0. from the prompt and therefore the LLM will generate 0. at the beginning of the confidence
         if len(text) == 0:
-            print(f'{original_text} for prediction so storing random number')
+            print(f'-------------Random choice because: {text}  ------------------------')
             return self.random_fct()
             # If text is empty, have to choose what to do. For now hits debugger.
         while text[-1].isalpha():
@@ -149,10 +152,18 @@ class LearningToInferExpForLLM(Experiment):
         try:
             return float('0.'+text)
         except:
-            # print(f'{original_text} for prediction so storing random number')
+            print(f'-------------Random choice because: {text}  ------------------------')
             return self.random_fct()
 
-            
+    def match_result(self, text):
+        pattern = re.compile(r'.*A:\s+I estimate the probability.*\bto be 0\.(\d+)')
+        match = re.search(pattern, text)
+        if match:
+            return "0." + match.group(1)
+        else:
+            return None
+
+
 if __name__ == '__main__':
     LearningToInferExpForLLM(get_llm).run()
-    
+

@@ -1,10 +1,14 @@
-import argparse
+import random
+import random
+import re
+import sys
+
+import gymnasium as gym
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import gymnasium as gym
+
 from envs.bandit import MetacognitionEnv
-import sys, os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
 from CogBench.llm_utils.llms import get_llm
@@ -52,7 +56,8 @@ class MetacognitionExpForLLM(Experiment):
         """
         Q_, A_ = llm.Q_A        
         letter_to_machine = {self.arms[0]: 0, self.arms[1]: 1}
-        llm_choice = lambda x: self.keep_arms(llm.generate(x), self.arms)
+        llm_choice = lambda x: self.keep_arms(llm.generate(x, max_tokens=1), self.arms)
+        llm.match_result_func = self.match_result
         llm_confidence = lambda x: self.del_letters_at_end(llm.generate(x))
 
         if self.parser.parse_args().version_number == '1':
@@ -91,11 +96,14 @@ class MetacognitionExpForLLM(Experiment):
             llm.default_query_specifications = " Give the answer in the form 'Machine <your choice> with confidence <your confidence>' (where your confidence of your choice being the best is given on a continuous "\
                 "scale running from 0 representing "\
                 f"\'this was a guess\' to 1 representing \'very certain\' should be given to two decimal places)."
+            # llm.default_query_specifications = " Give the answer in the form 'Machine <your choice> with confidence <your confidence>' (where your choice must be one letter your confidence of your choice being the best is given on a continuous scale running from 0 representing " \
+            #                                    f"\'this was a guess\' to 1 representing \'very certain\' should be given to two decimal places, like {example_confidences})."
             llm.format_answer = f"Machine {letter_choice} with confidence 0."
             llm.random_fct = self.rdm_confidence_agent #random confidence agent if llm is random
             confidence = llm_confidence(prompt)
             try:
                 confidence = float('0.' + confidence)
+                print(f'Confidence: {confidence}')
             except:
                 # If confidence is not a number, we will store a confidence of 0. 
                 confidence = 0.0
@@ -139,12 +147,14 @@ class MetacognitionExpForLLM(Experiment):
         '''
         if len(text) == 0:
             # If text is empty, the LLM will choose randomly between the arms
+            print(f'-------------Random choice because: {text}  ------------------------')
             return np.random.choice(arms)
         while text[-1] not in arms:
             if len(text) > 1:
                 text = text[:-1]
             else:
                 # If text is empty, the LLM will choose randomly between the arms
+                print(f'-------------Random choice because: {text}  ------------------------')
                 return np.random.choice(arms)
         return text[-1]
     
@@ -156,7 +166,7 @@ class MetacognitionExpForLLM(Experiment):
             text (str): text with letters deleted from end
         '''
         original_text = text
-        text = text.replace('Machine F with confidence ', '').replace('Machine J with confidence ', '')
+        text = text.replace('A: Machine F with confidence ', '').replace('A: Machine J with confidence ', '')
         text = text.replace('0.', '').replace(',', '').replace('.', '').replace(' ', '').replace('\'', '').replace(':"', '').replace('?', '').replace('*', '') #The 0. is because some models use to add a 0. before the confidence or restart the question asked...e.g: 'What is your confidence A: Machine F with confidence 0.'  --> Answer would repeat "Machine F with confidence 0."...
     
         if len(text) == 0:
@@ -172,7 +182,27 @@ class MetacognitionExpForLLM(Experiment):
                 return np.nan
 
         return text
-            
+
+    def match_result(self, text):
+        pattern = r'\bA:\s+Machine\s+[A-Z](?:\s+with\s+confidence\s+(\d+\.\d+)\.?(?![\d.])|(?!\s*[A-Z]).*?$)'
+        match = re.search(pattern, text)
+
+        if match:
+            result = match.group(0)
+            if result.endswith('.'):
+                result = result.rstrip('.')
+            return result
+        else:
+            return None
+
+    def generate_random_confidence_examples(self):
+        examples = []
+        for _ in range(3):
+            num = round(random.uniform(0, 1), 2)
+            examples.append(str(num))
+        example_str = ', '.join(examples)
+        return example_str
+
 if __name__ == '__main__':
     experiment = MetacognitionExpForLLM(get_llm)
     experiment.run()

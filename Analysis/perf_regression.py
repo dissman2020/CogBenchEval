@@ -28,14 +28,14 @@ features_to_exclude = ['Engine'] #!Engine always has to be here!!!
 # features_to_exclude += ['conversational', 'code', 'longlora', 'longQA']
 features_to_exclude += ['Step Back','Chain of Thought']
 
-experiments ={'RestlessBandit': ['performance_score1'],
-                                'TwoStepTask': ['performance_score1'],
-                                'HorizonTask': ['performance_score1'],
-                                'BART': ['performance_score1'],
-                                'ProbabilisticReasoning': ['performance_score1'],
-                                # 'TemporalDiscounting': ['performance_score1'],
-                                'InstrumentalLearning': ['performance_score1'],
-                                }
+experiments = {'RestlessBandit': ['performance_score1'],
+               'TwoStepTask': ['performance_score1'],
+               'HorizonTask': ['performance_score1'],
+               'BART': ['performance_score1'],
+               'ProbabilisticReasoning': ['performance_score1'],
+               # 'TemporalDiscounting': ['performance_score1'],
+               'InstrumentalLearning': ['performance_score1'],
+               }
 perf_df = pd.DataFrame()
 for experiment, scores_names in experiments.items():
     # Get the scores data for the experiment

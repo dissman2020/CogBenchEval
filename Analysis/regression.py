@@ -11,17 +11,18 @@ You can modify the list of engines to include in the analysis and the list of en
 """
 
 import pandas as pd
-import numpy as np
+
 from utils import regression, prepare_dataframe, filter_dataframe, standardize_dataframe
 
 # Run
-experiments ={'RestlessBandit': ['behaviour_score3'],
-                                    'TwoStepTask': ['behaviour_score1'],
-                                    'HorizonTask': ['behaviour_score1', 'behaviour_score2'],
-                                    'BART': ['behaviour_score1'],
-                                    'ProbabilisticReasoning': ['behaviour_score1', 'behaviour_score2', 'behaviour_score3', 'behaviour_score4'],
-                                    'TemporalDiscounting': ['performance_score1'],
-                                    'InstrumentalLearning': ['behaviour_score1','behaviour_score2','behaviour_score3', 'behaviour_score4']}
+experiments = {'RestlessBandit': ['behaviour_score3'],
+               'TwoStepTask': ['behaviour_score1'],
+               'HorizonTask': ['behaviour_score1', 'behaviour_score2'],
+               'BART': ['behaviour_score1'],
+               'ProbabilisticReasoning': ['behaviour_score1', 'behaviour_score2', 'behaviour_score3',
+                                          'behaviour_score4'],
+               'TemporalDiscounting': ['performance_score1'],
+               'InstrumentalLearning': ['behaviour_score1', 'behaviour_score2', 'behaviour_score3', 'behaviour_score4']}
 
 llm_df = pd.read_csv(f'./data/llm_features.csv')
 #Including all agents

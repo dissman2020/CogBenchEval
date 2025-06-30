@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
+
+from Analysis.plot_models import plot_models_data
 from utils import merge_all_metrics_and_features
 
 def normalize_metrics(df, df_cis, metrics):
@@ -127,7 +129,7 @@ def run(models=None, interest=None, store_id=None):
             'RestlessBandit': ['behaviour_score3'],
             'InstrumentalLearning': ['behaviour_score1','behaviour_score2'],
             'TwoStepTask': ['behaviour_score1'],
-            'TemporalDiscounting': ['performance_score1'],
+            'TemporalDiscounting': ['behaviour_score1'],
             'BART': ['behaviour_score1'],
         }
         metrics_names =  ['Prior weighting', 'Likelihood weighting','Directed exploration', 'Random exploration', 'Meta-cognition', 'Learning rate', 'Optimism bias', 'Model-basedness',  'Temporal discounting','Risk taking']
@@ -173,6 +175,7 @@ def run(models=None, interest=None, store_id=None):
 
     # Plot data
     plot_data(dp, output,  metrics_names, interest=='behaviour', store_id)
+    plot_models_data(dp, output,  metrics_names, interest=='behaviour', store_id)
 
 
 if __name__ == "__main__":

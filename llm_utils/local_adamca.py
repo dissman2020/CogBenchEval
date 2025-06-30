@@ -68,8 +68,8 @@ class LocalAdaMCA(LLM):
             )
 
             # 如果设备不是cuda（即单设备）且不是多GPU，则需要手动移动模型
-            if device_map is None or isinstance(device_map, str):
-                self.model.to(self.device)
+            # if device_map is None or isinstance(device_map, str):
+            #     self.model.to(self.device)
 
             # 设置为评估模式
             self.model.eval()

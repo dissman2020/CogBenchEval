@@ -1,11 +1,12 @@
-import argparse
+import os
+import re
+import sys
+
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import gymnasium as gym
+
 from envs.bart_env import Bart_env
-import statsmodels.api as sm
-import sys, os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))) #allows to import CogBench as a package
 from CogBench.base_classes import Experiment
 from CogBench.llm_utils.llms import get_llm
@@ -53,6 +54,7 @@ class RiskExpForLLM(Experiment):
         llm.random_fct = self.random_fct
         llm.format_answer = "Option "
         llm_choice = lambda x: self.del_letters_at_end(llm.generate(x))
+        llm.match_result_func = self.match_result
         trials = self.parser.parse_args().trials
 
         if self.parser.parse_args().version_number == '1':
@@ -183,6 +185,7 @@ class RiskExpForLLM(Experiment):
 
     def random_fct(self):
         """If random choice: Coin toss between two arms."""
+        print(f'-------------Random choice ------------------------')
         return '1' if np.random.rand() < 0.5 else '2'
     
     def del_letters_at_end(self, text):
@@ -205,11 +208,21 @@ class RiskExpForLLM(Experiment):
                 return self.random_fct()
 
         #Get the first digit from text
-        while not text[0].isdigit():
-            text = text[1:]
-        return text
+        if text[-1].isdigit():
+            return text[-1:]
+        else:
+            return self.random_fct()
 
-            
+    def match_result(self, text):
+        pattern = r'\bA:\sOption\s+[12]'
+        match = re.search(pattern, text)
+
+        if match:
+            result = match.group(0)
+            return result[-1]
+        else:
+            return None
+
 if __name__ == '__main__':
     experiment = RiskExpForLLM(get_llm)
     experiment.run()

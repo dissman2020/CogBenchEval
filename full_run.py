@@ -43,7 +43,7 @@ def run_benchmark(engine):
         # Get all the experiment folders
         experiment_folders = [f.path for f in os.scandir(experiments_dir) if f.is_dir()]
 
-        # folder = './Experiments/HorizonTask'
+        # folder = './Experiments/TwoStepTask'
         # os.chdir(folder)
         # print('4424')
         # print(f'Running experiment {os.path.basename(folder)}')
@@ -52,30 +52,36 @@ def run_benchmark(engine):
         # subprocess.run(['python3', 'store.py', '--engines', engine])
         # os.chdir('../..')  # Go back to the root directory
 
-        for folder in experiment_folders:
-            # Run query.py and store.py for each experiment
-            os.chdir(folder)
-            print(f'Running experiment {os.path.basename(folder)}')
-            subprocess.run(['python3', 'query.py', '--engines', engine])
-            print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
-            subprocess.run(['python3', 'store.py', '--engines', engine])
-            os.chdir('../..')  # Go back to the root directory
+        # for folder in experiment_folders:
+        #     # Run query.py and store.py for each experiment
+        #     os.chdir(folder)
+        #     print(f'Running experiment {os.path.basename(folder)}')
+        #     subprocess.run(['python3', 'query.py', '--engines', engine])
+        #     print(f'Storing the behavioral scores for experiment {os.path.basename(folder)}')
+        #     subprocess.run(['python3', 'store.py', '--engines', engine])
+        #     os.chdir('../..')  # Go back to the root directory
 
 
     # Run phenotype_comp.py in the Analysis folder
+    metrics_analysis(analysis_dir)
+
+
+def metrics_analysis(analysis_dir):
     os.chdir(analysis_dir)
     print(f'Behaviour scores:')
-    subprocess.run(['python3', 'phenotype_comp.py', '--models', args.engine] + args.compare_with + 
-                   ['--interest', 'behaviour', '--store_id', 'full_run', '--print_scores', '--print_scores_for', 'human', 'random', args.engine] + args.compare_with)
+    subprocess.run(['python3', 'phenotype_comp.py', '--models', args.engine] + args.compare_with +
+                   ['--interest', 'behaviour', '--store_id', 'full_run', '--print_scores', '--print_scores_for',
+                    'human', 'random', args.engine] + args.compare_with)
     print(f'Performance scores:')
-    subprocess.run(['python3', 'phenotype_comp.py', '--models', args.engine] + args.compare_with + 
-                   ['--interest', 'performance', '--store_id', 'full_run', '--print_scores', '--print_scores_for', 'human', 'random', args.engine] + args.compare_with) 
-    
+    subprocess.run(['python3', 'phenotype_comp.py', '--models', args.engine] + args.compare_with +
+                   ['--interest', 'performance', '--store_id', 'full_run', '--print_scores', '--print_scores_for',
+                    'human', 'random', args.engine] + args.compare_with)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the entire benchmark for a chosen LLM.')
     parser.add_argument('--engine', type=str, required=True, help='The LLM to run the benchmark on.')
-    parser.add_argument('--compare_with', type=str, nargs='+', default=['gpt-4', 'claude-2'], help='The models to compare against.')
+    parser.add_argument('--compare_with', type=str, nargs='+', default=['human', 'random', 'local_llama1B', 'local_llama8B', 'centaur', 'mixratio'], help='The models to compare against.')
     parser.add_argument('--only_analysis', action='store_true', help='If set, only run the analysis and skip the experiment running and storing steps.')
     args = parser.parse_args()
 

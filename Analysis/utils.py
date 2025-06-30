@@ -617,7 +617,8 @@ def merge_all_metrics_and_features(experiments, excluding_agents, llm_df):
                     mean_score = np.mean(engine_scores)
                     metrics[engine].append(mean_score)
                     if f'{score_name}_CI' in df.columns:
-                        ci = df[df['engine'] == engine][f'{score_name}_CI'].values[0]
+                        ci_values = df[df['engine'] == engine][f'{score_name}_CI'].values
+                        ci = ci_values[0] if len(ci_values) > 0 else np.nan
                     else:
                         std_score = np.std(engine_scores)
                         ci = 1.96 * std_score / np.sqrt(len(engine_scores))

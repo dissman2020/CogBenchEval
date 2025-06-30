@@ -1,8 +1,9 @@
-import argparse
+import os
+import re
+import sys
+
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))  # allows to import CogBench as a package
@@ -54,6 +55,8 @@ class TwoStepTaskExpForLLM(Experiment):
         Q_, A_ = llm.Q_A
         llm.random_fct = self.random_fct
         llm_choice = lambda x, arms: self.keep_arms(llm.generate(x), arms)
+        llm.match_result_func = self.match_result
+
         action_to_index = {"D": 0, "F": 1, "J": 2, "K": 3}
         reward_probs = np.random.uniform(0.25, 0.75, (4,))
 
@@ -62,7 +65,6 @@ class TwoStepTaskExpForLLM(Experiment):
             start_text = "You will travel to foreign planets in search of treasures.\n" \
                          "When you visit a planet, you can choose an alien to trade with.\n" \
                          "The chance of getting treasures from these aliens changes over time.\n" \
-                         "You can only response one character for each question.\n" \
                          "Your goal is to maximize the number of received treasures.\n\n"
         elif self.parser.parse_args().version_number == '2':
             # Magic carpet
@@ -199,6 +201,19 @@ class TwoStepTaskExpForLLM(Experiment):
                 return np.random.choice(arms)
         return text[-1]
 
+    def match_result(self, text):
+        pattern = r'A:\s(?:Planet|Alien)(.+)'
+        match = re.search(pattern, text)
+
+        if match:
+            result = match.group(1)
+            choices = re.findall(r'[A-Z]', result)
+            if len(set(choices)) == 1:
+                return choices[0]
+            else:
+                return None
+        else:
+            return None
 
 if __name__ == '__main__':
     experiment = TwoStepTaskExpForLLM(get_llm)
